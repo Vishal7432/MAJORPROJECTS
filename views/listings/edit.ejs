@@ -1,7 +1,7 @@
 <% layout("/layouts/boilerplate") -%>
 
 <div class="row mt-3">
-  <div class="col-8-offset">
+  <div class="col-8 offset-2">
     <h2>Edit your listing</h2>
 
     <form
@@ -9,6 +9,7 @@
       action="/listings/<%= listing._id %>?_method=PUT"
       novalidate
       class="needs-validation"
+      enctype="multipart/form-data"
     >
       <div class="mb-3">
         <label for="title" class="form-label">Title:</label>
@@ -30,17 +31,23 @@
       </div>
 
       <div class="mb-3">
-        <label for="image" class="form-label"
-          >Please enter a valid link for Image:</label
-        >
+        <p style="margin: 0%">Original Listing Image</p>
+        <img
+          src="<%= listing.image.url %>"
+          class="img-fluid"
+          alt="listing Image"
+          style="height: 200px; width: 300px; object-fit: cover"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="image" class="form-label">Upload new Image:</label>
         <input
-          name="listing[image]"
-          value="<%= listing.image.url %>"
-          type="text"
+          name="listing[image][url]"
+          type="file"
           class="form-control"
           required
         />
-        <div class="invalid-feedback">InValid Image.</div>
       </div>
       <div class="row">
         <div class="mb-3 col-md-4">

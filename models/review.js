@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { create } = require("./listing");
+const { ref } = require("joi");
 const Schema = mongoose.Schema;
 
 const reviewSchema = new Schema({
@@ -12,6 +13,10 @@ const reviewSchema = new Schema({
   createAt: {
     type: Date,
     default: Date.now(),
+  },
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
   },
 });
 

@@ -1,97 +1,47 @@
 const express = require("express");
-
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
-const ExpressError = require("../utils/ExpressError.js");
-const { listingSchema } = require("../schema.js");
-const Listing = require("../models/listing.js");
+const { isLoggedIn, isOwner, validateListing } = require("../middleware.js");
+const ListingController = require("../controllers/listing.js");
+const multer = require("multer");
+const { storage } = require("../cloudconfig.js");
+const upload = multer({ storage });
 
-const validateListing = (req, res, next) => {
-  let { error } = listingSchema.validate(req.body);
-  if (error) {
-    let errMsg = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(400, errMsg);
-  } else {
-    next();
-  }
-};
-
-// index route
-router.get(
-  "/",
-  wrapAsync(async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("listings/index.ejs", { allListings });
-  })
-);
+router
+  .route("/")
+  //index route
+  .get(wrapAsync(ListingController.index))
+  ///create post route
+  .post(
+    isLoggedIn,
+    validateListing,
+    upload.single("listing[image]"),
+    wrapAsync(ListingController.createListing)
+  );
 
 //new route
-router.get("/new", (req, res) => {
-  res.render("listings/new.ejs");
-});
+router.get("/new", isLoggedIn, ListingController.renderNewForm);
 
-//show route
-router.get(
-  "/:id",
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    const listing = await Listing.findById(id).populate("reviews");
-    res.render("listings/show.ejs", { listing });
-  })
-);
-
-//Create post route
-
-router.post(
-  "/",
-  validateListing,
-  wrapAsync(async (req, res, next) => {
-    // let {title, description, image, price, country, location} = req.body:
-
-    let result = listingSchema.validate(req.body);
-    console.log(result);
-    if (result.error) {
-      throw new ExpressError(400, result.error);
-    }
-    const newListing = new Listing(req.body.listing);
-    await newListing.save();
-    res.redirect("/listings");
-  })
-);
+router
+  .route("/:id")
+  //show route
+  .get(wrapAsync(ListingController.showListing))
+  .put(
+    //  Update Route
+    isLoggedIn,
+    isOwner,
+    upload.single("listing[image]"),
+    validateListing,
+    wrapAsync(ListingController.updateListing)
+  )
+  .delete(isLoggedIn, isOwner, wrapAsync(ListingController.deleteListing));
 
 // Edit Route
 router.get(
   "/:id/edit",
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/edit.ejs", { listing });
-  })
-);
-
-//  Update Route
-router.put(
-  "/:id",
-  validateListing,
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    if (!req.body.listing) {
-      throw new ExpressError(400, "Send Valid data for listing");
-    }
-    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-    res.redirect("/listings");
-  })
-);
-
-// Delete route
-router.delete(
-  "/:id",
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
-    res.redirect("/listings");
-  })
+  isLoggedIn,
+  isOwner,
+  wrapAsync(ListingController.renderEditListing)
 );
 
 module.exports = router;
