@@ -1,19 +1,33 @@
 const mongoose = require("mongoose");
+const Review = require("./review.js");
 const Schema = mongoose.Schema;
 
 const listingSchema = new Schema({
   title: {
     type: String,
-    require: true,
+    required: true,
   },
-  description: String,
+  description: {
+    type: String,
+    required: true,
+  },
   image: {
     url: String,
     filename: String,
   },
-  price: Number,
-  location: String,
-  country: String,
+  price: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  location: {
+    type: String,
+    required: true,
+  },
+  country: {
+    type: String,
+    required: true,
+  },
   reviews: [
     {
       type: mongoose.Schema.Types.ObjectId,

@@ -1,18 +1,20 @@
 const mongoose = require("mongoose");
-const { create } = require("./listing");
-const { ref } = require("joi");
 const Schema = mongoose.Schema;
 
 const reviewSchema = new Schema({
-  comment: String,
-  rating: {
+  comment: {
     type: String,
+    required: true,
+  },
+  rating: {
+    type: Number,
+    required: true,
     min: 1,
     max: 5,
   },
-  createAt: {
+  createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   author: {
     type: Schema.Types.ObjectId,

@@ -1,12 +1,44 @@
 const Listing = require("../models/listing");
-const { listingSchema } = require("../schema.js");
-const mbxGeoconding = require("@mapbox/mapbox-sdk/services/geocoding");
-const mapToken = process.env.MAP_TOKEN;
-const geocodingClient = mbxGeoconding({ accessToken: mapToken });
+const ExpressError = require("../utils/ExpressError.js");
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+async function geocodeLocation(location) {
+  if (!process.env.MAP_TOKEN) {
+    throw new ExpressError(503, "Location service is not configured.");
+  }
+
+  const geocodingClient = mbxGeocoding({
+    accessToken: process.env.MAP_TOKEN,
+  });
+  const response = await geocodingClient
+    .forwardGeocode({ query: location, limit: 1 })
+    .send();
+  const geometry = response.body.features[0]?.geometry;
+
+  if (!geometry) {
+    throw new ExpressError(400, "We could not find that location.");
+  }
+
+  return geometry;
+}
 
 module.exports.index = async (req, res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index.ejs", { allListings });
+  const searchQuery = String(req.query.search || "").trim().slice(0, 100);
+  const searchPattern = new RegExp(escapeRegex(searchQuery), "i");
+  const filter = searchQuery
+    ? {
+        $or: [
+          { title: searchPattern },
+          { location: searchPattern },
+          { country: searchPattern },
+        ],
+      }
+    : {};
+
+  const allListings = await Listing.find(filter);
+  res.render("listings/index.ejs", { allListings, searchQuery });
 };
 
 module.exports.renderNewForm = (req, res) => {
@@ -14,7 +46,7 @@ module.exports.renderNewForm = (req, res) => {
 };
 
 module.exports.showListing = async (req, res) => {
-  let { id } = req.params;
+  const { id } = req.params;
   const listing = await Listing.findById(id)
     .populate({ path: "reviews", populate: { path: "author" } })
     .populate("owner");
@@ -22,67 +54,78 @@ module.exports.showListing = async (req, res) => {
     req.flash("error", "Listing you request does not exist!");
     return res.redirect("/listings");
   }
-  console.log(listing);
-  res.render("listings/show.ejs", { listing });
+  res.render("listings/show.ejs", {
+    listing,
+    mapToken: process.env.MAP_TOKEN || "",
+  });
 };
 
-module.exports.createListing = async (req, res, next) => {
-  let response = await geocodingClient
-    .forwardGeocode({
-      query: req.body.listing.location,
-      limit: 1,
-    })
-    .send();
+module.exports.createListing = async (req, res) => {
+  if (!req.file) {
+    throw new ExpressError(400, "Please upload an image for the listing.");
+  }
 
-  let url = req.file.path;
-  let filename = req.file.filename;
+  const geometry = await geocodeLocation(req.body.listing.location);
+  const { path: url, filename } = req.file;
 
   const newListing = new Listing(req.body.listing);
   newListing.owner = req.user._id;
   newListing.image = { url, filename };
-
-  newListing.geometry = response.body.features[0].geometry;
-
-  let saveListing = await newListing.save();
-  console.log(saveListing);
-
+  newListing.geometry = geometry;
   await newListing.save();
-  req.flash("success", "New Listing Create!");
+  req.flash("success", "New listing created!");
   res.redirect("/listings");
 };
 
 module.exports.renderEditListing = async (req, res) => {
-  let { id } = req.params;
+  const { id } = req.params;
   const listing = await Listing.findById(id);
   if (!listing) {
     req.flash("error", "Listing you request does not exist!");
     return res.redirect("/listings");
   }
 
-  let originalImageUrl = listing.image.url;
-  originalImageUrl = originalImageUrl.replace("/upload", "/upload/ w_250");
+  const originalImageUrl = listing.image?.url?.replace(
+    "/upload",
+    "/upload/w_250"
+  ) || "https://placehold.co/800x600?text=Stay";
   res.render("listings/edit.ejs", { listing, originalImageUrl });
 };
 
 module.exports.updateListing = async (req, res) => {
-  let { id } = req.params;
-  let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-
-  if (typeof req.body !== "undefined") {
-    let url = req.file.path;
-    let filename = req.file.filename;
-    listing.image = { url, filename };
-    await listing.save();
+  const { id } = req.params;
+  const listing = await Listing.findById(id);
+  if (!listing) {
+    throw new ExpressError(404, "Listing not found.");
   }
 
-  req.flash("success", "Listing Updated!");
+  const updates = req.body.listing;
+  listing.set({
+    title: updates.title,
+    description: updates.description,
+    price: updates.price,
+    location: updates.location,
+    country: updates.country,
+    geometry: await geocodeLocation(updates.location),
+  });
+
+  // The existing image remains unchanged unless a replacement was uploaded.
+  if (req.file) {
+    listing.image = { url: req.file.path, filename: req.file.filename };
+  }
+
+  await listing.save();
+  req.flash("success", "Listing updated!");
   res.redirect("/listings");
 };
 
 module.exports.deleteListing = async (req, res) => {
-  let { id } = req.params;
-  let deletedListing = await Listing.findByIdAndDelete(id);
-  req.flash("success", "Listing Deleted!");
-  console.log(deletedListing);
+  const { id } = req.params;
+  const deletedListing = await Listing.findByIdAndDelete(id);
+  if (!deletedListing) {
+    throw new ExpressError(404, "Listing not found.");
+  }
+
+  req.flash("success", "Listing deleted.");
   res.redirect("/listings");
 };

@@ -22,9 +22,13 @@ module.exports.saveRedirctUrl = (req, res, next) => {
 };
 
 module.exports.isOwner = async (req, res, next) => {
-  let { id } = req.params;
-  let listing = await Listing.findById(id);
-  if (!listing.owner.equals(res.locals.currUser._id)) {
+  const { id } = req.params;
+  const listing = await Listing.findById(id);
+  if (!listing) {
+    return next(new ExpressError(404, "Listing not found."));
+  }
+
+  if (!listing.owner || !listing.owner.equals(res.locals.currUser._id)) {
     req.flash("error", "You are not owner of this list.");
     return res.redirect(`/listings/${id}`);
   }
@@ -53,9 +57,21 @@ module.exports.validateReview = (req, res, next) => {
 };
 
 module.exports.isReviewAuthor = async (req, res, next) => {
-  let { id, reviewId } = req.params;
-  let review = await Review.findById(reviewId);
-  if (!review.author.equals(res.locals.currUser._id)) {
+  const { id, reviewId } = req.params;
+  const [review, listing] = await Promise.all([
+    Review.findById(reviewId),
+    Listing.findById(id),
+  ]);
+
+  if (
+    !review ||
+    !listing ||
+    !listing.reviews.some((entry) => entry.equals(reviewId))
+  ) {
+    return next(new ExpressError(404, "Review not found."));
+  }
+
+  if (!review.author || !review.author.equals(res.locals.currUser._id)) {
     req.flash("error", "You are not author of this review!.");
     return res.redirect(`/listings/${id}`);
   }
