@@ -1,4 +1,4 @@
-if (process.env.NODE_ENV != "productions") {
+if (process.env.NODE_ENV != "production") {
   require("dotenv").config();
 }
 
@@ -11,6 +11,7 @@ const ejsMate = require("ejs-mate");
 const { send } = require("process");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -21,7 +22,9 @@ const reviewsRouter = require("./route/review.js");
 const usersRouter = require("./route/user.js");
 
 // ✅ Fixed closing quote in connection string
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+// const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+
+const dbUrl = process.env.ATLASDB_URL;
 
 // ✅ Use .catch instead of chaining .then for error handling
 main()
@@ -33,7 +36,8 @@ main()
   });
 
 async function main() {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(dbUrl);
+  console.log("DB URL from env:", process.env.ATLASDB_URL);
 }
 
 app.engine("ejs", ejsMate);
@@ -44,8 +48,26 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.json());
 
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: process.env.SECRET,
+  },
+  touchAfter: 24 * 3600,
+});
+
+store.on("error", () => {
+  console.log("ERROR in MONGO SESSION STORE", err);
+});
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
+
 const sessionOptions = {
-  secret: "mysupersecretcode",
+  store,
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
