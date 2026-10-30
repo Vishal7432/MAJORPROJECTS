@@ -5,9 +5,10 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const passport = require("passport");
 const { saveRedirctUrl } = require("../middleware.js");
 const userController = require("../controllers/user.js");
+const { data: sampleListings } = require("../init/data.js");
 
 router.get("/", (req, res) => {
-  res.render("home.ejs");
+  res.render("home.ejs", { featuredListings: sampleListings.slice(0, 3) });
 });
 
 router

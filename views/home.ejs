@@ -34,26 +34,26 @@
       <div class="home-visual-glow"></div>
       <div class="travel-photo travel-photo-back">
         <img
-          src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&amp;fit=crop&amp;w=700&amp;q=85"
-          alt="Mountain lake surrounded by green hills"
+          src="<%= featuredListings[1].image.url %>"
+          alt="<%= featuredListings[1].title %>"
           fetchpriority="high"
         />
       </div>
       <div class="travel-photo travel-photo-front">
         <img
-          src="https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?auto=format&amp;fit=crop&amp;w=900&amp;q=85"
-          alt="Warm, welcoming home tucked among trees"
+          src="<%= featuredListings[0].image.url %>"
+          alt="<%= featuredListings[0].title %>"
           fetchpriority="high"
         />
         <span class="photo-caption">
           <span class="photo-caption-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
-          <span><strong>Somewhere wonderful</strong><small>Waiting to be discovered</small></span>
+          <span><strong><%= featuredListings[0].location %>, <%= featuredListings[0].country %></strong><small>Waiting to be discovered</small></span>
         </span>
       </div>
       <div class="travel-photo travel-photo-side">
         <img
-          src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&amp;fit=crop&amp;w=500&amp;q=80"
-          alt="A scenic open road through the mountains"
+          src="<%= featuredListings[2].image.url %>"
+          alt="<%= featuredListings[2].title %>"
           loading="lazy"
         />
       </div>
@@ -63,6 +63,38 @@
       </div>
       <span class="visual-orbit orbit-one"></span>
       <span class="visual-orbit orbit-two"></span>
+    </div>
+  </section>
+
+  <section class="home-featured">
+    <div class="home-featured-heading">
+      <div>
+        <p class="eyebrow">A few places to spark ideas</p>
+        <h2>Find your next <span>favourite place.</span></h2>
+      </div>
+      <a href="/listings" class="featured-view-all">Explore all stays <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+    <div class="featured-stays-grid">
+      <% for (const stay of featuredListings) { %>
+        <a
+          class="featured-stay-card"
+          href="/listings?search=<%= encodeURIComponent(stay.location) %>"
+        >
+          <img
+            src="<%= stay.image.url %>"
+            alt="<%= stay.title %>"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="featured-stay-info">
+            <span>
+              <strong><%= stay.title %></strong>
+              <small><%= stay.location %>, <%= stay.country %></small>
+            </span>
+            <span class="featured-stay-price"><strong>&#8377;<%= stay.price.toLocaleString("en-IN") %></strong><small> / night</small></span>
+          </span>
+        </a>
+      <% } %>
     </div>
   </section>
 

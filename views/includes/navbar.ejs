@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-xl border-bottom sticky-top">
+<nav class="navbar navbar-expand-md border-bottom sticky-top">
   <div class="container-fluid navbar-container">
     <a class="navbar-brand d-flex align-items-center gap-2" href="/">
       <i class="fa-regular fa-compass" aria-hidden="true"></i>
@@ -20,14 +20,15 @@
         <a class="nav-link" href="/#about">About</a>
         <a class="nav-link" href="/listings"><b>Explore stays</b></a>
       </div>
-      <form class="d-flex nav-search" role="search" action="/listings" method="GET">
+      <form class="nav-search" role="search" action="/listings" method="GET">
+        <i class="fa-solid fa-location-dot nav-search-icon" aria-hidden="true"></i>
         <input
           class="form-control search-inp"
           name="search"
           type="search"
           value="<%= searchQuery || '' %>"
-          placeholder="Search destinations"
-          aria-label="Search destinations"
+          placeholder="City, stay or country"
+          aria-label="Search by city, stay or country"
         />
         <button class="btn btn-search" type="submit">
           <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
