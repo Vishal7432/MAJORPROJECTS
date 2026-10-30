@@ -1,31 +1,39 @@
+const path = require("node:path");
 const mongoose = require("mongoose");
 const initData = require("./data.js");
 const Listing = require("../models/listing.js");
 
-// ✅ Fixed closing quote in connection string
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
-// ✅ Use .catch instead of chaining .then for error handling
-main()
-  .then(() => {
-    console.log("connected to DB");
-  })
-  .catch((err) => {
-    console.log("Error connecting to DB:", err);
-  });
+async function seedListings() {
+  const databaseUrl = process.env.ATLASDB_URL;
+  if (!databaseUrl) {
+    throw new Error("ATLASDB_URL is required to seed the application database.");
+  }
 
-async function main() {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(databaseUrl);
+  console.log("Connected to the application database.");
+
+  try {
+    const result = await Listing.bulkWrite(
+      initData.data.map((listing) => ({
+        updateOne: {
+          filter: { title: listing.title, location: listing.location },
+          update: { $setOnInsert: listing },
+          upsert: true,
+        },
+      }))
+    );
+
+    console.log(
+      `Seed complete: ${result.upsertedCount} added, ${result.matchedCount} already present.`
+    );
+  } finally {
+    await mongoose.disconnect();
+  }
 }
 
-const initDB = async () => {
-  await Listing.deleteMany({});
-  initData.data = initData.data.map((obj) => ({
-    ...obj,
-    owner: "682232af5131736862d756b4",
-  }));
-  await Listing.insertMany(initData.data);
-  console.log("data was initialize");
-};
-
-initDB();
+seedListings().catch((error) => {
+  console.error("Failed to seed listings:", error);
+  process.exitCode = 1;
+});
