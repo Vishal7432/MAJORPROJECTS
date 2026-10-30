@@ -1,0 +1,109 @@
+<% layout("/layouts/boilerplate") -%>
+
+<main class="home-page">
+  <section class="home-hero">
+    <div class="home-hero-copy">
+      <p class="eyebrow"><i class="fa-solid fa-sparkles" aria-hidden="true"></i> Your next story starts here</p>
+      <h1>Find a place.<br />Feel <span>somewhere new.</span></h1>
+      <p class="home-hero-description">
+        Yatra-Nest brings memorable stays, inspiring destinations and welcoming hosts together, so your next getaway feels like yours.
+      </p>
+      <form class="home-search" action="/listings" method="GET" role="search">
+        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+        <label class="visually-hidden" for="home-destination">Where do you want to go?</label>
+        <input
+          id="home-destination"
+          class="form-control"
+          name="search"
+          type="search"
+          placeholder="Try a city or country"
+          aria-label="Search destinations"
+        />
+        <button class="btn btn-search" type="submit">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <span>Explore stays</span>
+        </button>
+      </form>
+      <div class="home-trust-note">
+        <span class="trust-icon"><i class="fa-solid fa-compass" aria-hidden="true"></i></span>
+        <span>Discover stays beyond the ordinary</span>
+      </div>
+    </div>
+
+    <div class="home-visual" aria-label="A collection of inspiring travel destinations">
+      <div class="home-visual-glow"></div>
+      <div class="travel-photo travel-photo-back">
+        <img
+          src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&amp;fit=crop&amp;w=700&amp;q=85"
+          alt="Mountain lake surrounded by green hills"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="travel-photo travel-photo-front">
+        <img
+          src="https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?auto=format&amp;fit=crop&amp;w=900&amp;q=85"
+          alt="Warm, welcoming home tucked among trees"
+          fetchpriority="high"
+        />
+        <span class="photo-caption">
+          <span class="photo-caption-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
+          <span><strong>Somewhere wonderful</strong><small>Waiting to be discovered</small></span>
+        </span>
+      </div>
+      <div class="travel-photo travel-photo-side">
+        <img
+          src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&amp;fit=crop&amp;w=500&amp;q=80"
+          alt="A scenic open road through the mountains"
+          loading="lazy"
+        />
+      </div>
+      <div class="floating-note">
+        <span class="floating-note-icon"><i class="fa-regular fa-heart" aria-hidden="true"></i></span>
+        <span><strong>Go at your pace</strong><small>Make it your kind of trip</small></span>
+      </div>
+      <span class="visual-orbit orbit-one"></span>
+      <span class="visual-orbit orbit-two"></span>
+    </div>
+  </section>
+
+  <section class="home-about" id="about">
+    <div class="home-section-heading">
+      <p class="eyebrow">A little about us</p>
+      <h2>Travel should feel like <span>you.</span></h2>
+      <p>
+        Yatra-Nest is a place to discover stays with character. Explore destinations, get a feel for each listing and hear from fellow travellers before choosing your next escape.
+      </p>
+    </div>
+    <div class="home-feature-grid">
+      <article class="home-feature-card">
+        <span class="feature-icon"><i class="fa-solid fa-house-chimney" aria-hidden="true"></i></span>
+        <h3>Find your kind of stay</h3>
+        <p>Browse places to stay and search by destination, location or listing name.</p>
+        <a href="/listings">Discover stays <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </article>
+      <article class="home-feature-card">
+        <span class="feature-icon feature-icon-sage"><i class="fa-regular fa-map" aria-hidden="true"></i></span>
+        <h3>Get to know the place</h3>
+        <p>Explore listing details, see where a stay is on the map and plan with more context.</p>
+        <a href="/listings">Explore destinations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </article>
+      <article class="home-feature-card">
+        <span class="feature-icon feature-icon-sand"><i class="fa-regular fa-comments" aria-hidden="true"></i></span>
+        <h3>Hear from travellers</h3>
+        <p>Read guest reviews and share your own experience after finding a place you love.</p>
+        <a href="/signup">Join the community <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </article>
+    </div>
+  </section>
+
+  <section class="home-host-cta">
+    <div>
+      <p class="eyebrow">Have a place to share?</p>
+      <h2>Make room for someone else's next adventure.</h2>
+      <p>Bring your stay to Yatra-Nest and help travellers find a place that feels just right.</p>
+    </div>
+    <a class="btn home-cta-button" href="/listings/new">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i> Host a stay
+    </a>
+  </section>
+</main>

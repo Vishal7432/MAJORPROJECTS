@@ -1,11 +1,30 @@
 <% layout("/layouts/boilerplate") -%>
 
 <main class="listings-page">
-  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4">
-    <div>
-      <p class="eyebrow mb-1">Find your next getaway</p>
-      <h1 class="page-title mb-0"><%= searchQuery ? "Search results" : "Explore stays" %></h1>
+  <section class="listings-hero mb-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3">
+      <div>
+        <p class="eyebrow mb-2">Make room for a little wonder</p>
+        <h1 class="page-title mb-2">
+          <%= searchQuery ? "Your search starts here" : "Find a stay that feels like yours" %>
+        </h1>
+        <p class="listings-intro mb-0">
+          <%= searchQuery ? "Explore places matching your destination." : "Thoughtful stays for the stories you haven't made yet." %>
+        </p>
+      </div>
+      <div class="listings-summary">
+        <span class="listings-count"><%= allListings.length %></span>
+        <span><%= allListings.length === 1 ? "stay to explore" : "stays to explore" %></span>
+      </div>
     </div>
+  </section>
+
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <% if (searchQuery) { %>
+      <p class="search-summary mb-0">Showing results for <strong>“<%= searchQuery %>”</strong></p>
+    <% } else { %>
+      <p class="search-summary mb-0">Handpicked places for your next escape</p>
+    <% } %>
     <div class="tax-toggle">
       <div class="form-check form-switch mb-0">
         <input class="form-check-input" type="checkbox" id="tax-toggle" />
@@ -14,12 +33,9 @@
     </div>
   </div>
 
-  <% if (searchQuery) { %>
-    <p class="text-secondary mb-4">Results for “<%= searchQuery %>”</p>
-  <% } %>
-
   <% if (allListings.length === 0) { %>
     <div class="empty-state text-center py-5">
+      <span class="empty-state-icon" aria-hidden="true"><i class="fa-regular fa-compass"></i></span>
       <h2 class="h4">No stays found</h2>
       <p class="text-secondary">Try another destination or browse all available stays.</p>
       <a class="btn btn-outline-dark" href="/listings">Browse all stays</a>
@@ -35,14 +51,20 @@
                 class="card-img-top listing-card-image"
                 alt="<%= listing.title %>"
                 loading="lazy"
+                decoding="async"
               />
               <div class="card-body">
                 <h2 class="card-title"><%= listing.title %></h2>
-                <p class="listing-location"><%= listing.location %>, <%= listing.country %></p>
-                <p class="card-text">
-                  <strong>&#8377;<%= listing.price.toLocaleString("en-IN") %></strong> / night
-                  <span class="tax-info"> · approx. &#8377;<%= Math.round(listing.price * 0.18).toLocaleString("en-IN") %> tax</span>
+                <p class="listing-location">
+                  <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                  <%= listing.location %>, <%= listing.country %>
                 </p>
+                <div class="listing-price">
+                  <p class="card-text mb-0">
+                    <strong>&#8377;<%= listing.price.toLocaleString("en-IN") %></strong><span class="price-unit"> / night</span>
+                  </p>
+                  <span class="tax-info">+ &#8377;<%= Math.round(listing.price * 0.18).toLocaleString("en-IN") %> est. tax</span>
+                </div>
               </div>
             </article>
           </a>
