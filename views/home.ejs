@@ -8,22 +8,29 @@
       <p class="home-hero-description">
         Yatra-Nest brings memorable stays, inspiring destinations and welcoming hosts together, so your next getaway feels like yours.
       </p>
-      <form class="home-search" action="/listings" method="GET" role="search">
-        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-        <label class="visually-hidden" for="home-destination">Where do you want to go?</label>
-        <input
-          id="home-destination"
-          class="form-control"
-          name="search"
-          type="search"
-          placeholder="Try a city or country"
-          aria-label="Search destinations"
-        />
-        <button class="btn btn-search" type="submit">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <span>Explore stays</span>
-        </button>
-      </form>
+      <div class="home-hero-actions">
+        <form class="home-search" action="/listings" method="GET" role="search">
+          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          <label class="visually-hidden" for="home-destination">Where do you want to go?</label>
+          <input
+            id="home-destination"
+            class="form-control"
+            name="search"
+            type="search"
+            placeholder="Try a city or country"
+            aria-label="Search destinations"
+          />
+          <button class="btn btn-search" type="submit">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <span>Explore stays</span>
+          </button>
+        </form>
+        <a class="home-host-link" href="/listings/new">
+          <span class="home-host-link-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+          <span><strong>List your stay</strong><small>Share your place with travellers</small></span>
+          <i class="fa-solid fa-arrow-right home-host-link-arrow" aria-hidden="true"></i>
+        </a>
+      </div>
       <div class="home-trust-note">
         <span class="trust-icon"><i class="fa-solid fa-compass" aria-hidden="true"></i></span>
         <span>Discover stays beyond the ordinary</span>

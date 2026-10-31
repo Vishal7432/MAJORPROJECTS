@@ -18,6 +18,7 @@ const User = require("./models/user.js");
 const listingsRouter = require("./route/listing.js");
 const reviewsRouter = require("./route/review.js");
 const usersRouter = require("./route/user.js");
+const bookingsRouter = require("./route/booking.js");
 
 function createApp(store) {
   const app = express();
@@ -65,6 +66,7 @@ function createApp(store) {
     next();
   });
 
+  app.use("/", bookingsRouter);
   app.use("/listings", listingsRouter);
   app.use("/listings/:id/reviews", reviewsRouter);
   app.use("/", usersRouter);

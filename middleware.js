@@ -2,13 +2,13 @@ const Listing = require("./models/listing");
 const Review = require("./models/review.js");
 
 const ExpressError = require("./utils/ExpressError.js");
-const { listingSchema, reviewSchema } = require("./schema.js");
+const { listingSchema, reviewSchema, bookingSchema } = require("./schema.js");
 
 module.exports.isLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
     // redirectUrl
     req.session.redirectUrl = req.originalUrl;
-    req.flash("error", "You must be logged in to create listing!");
+    req.flash("error", "Please log in or create an account to continue.");
     return res.redirect("/login");
   }
   next();
@@ -54,6 +54,15 @@ module.exports.validateReview = (req, res, next) => {
   } else {
     next();
   }
+};
+
+module.exports.validateBooking = (req, res, next) => {
+  const { error } = bookingSchema.validate(req.body);
+  if (error) {
+    const message = error.details.map((detail) => detail.message).join(", ");
+    return next(new ExpressError(400, message));
+  }
+  next();
 };
 
 module.exports.isReviewAuthor = async (req, res, next) => {

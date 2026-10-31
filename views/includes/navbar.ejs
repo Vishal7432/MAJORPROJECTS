@@ -5,6 +5,15 @@
       <span class="brand-name">Yatra-Nest</span>
     </a>
     <button
+      class="mobile-search-toggle"
+      type="button"
+      aria-controls="mobileSearchPanel"
+      aria-expanded="false"
+      aria-label="Open destination search"
+    >
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+    </button>
+    <button
       class="navbar-toggler"
       type="button"
       data-bs-toggle="collapse"
@@ -15,6 +24,33 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
+    <form
+      class="mobile-search-panel"
+      id="mobileSearchPanel"
+      role="search"
+      action="/listings"
+      method="GET"
+      hidden
+    >
+      <label class="mobile-search-label" for="mobile-destination-search">
+        Where would you like to go?
+      </label>
+      <div class="mobile-search-field">
+        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+        <input
+          id="mobile-destination-search"
+          class="form-control search-inp"
+          name="search"
+          type="search"
+          value="<%= searchQuery || '' %>"
+          placeholder="Search a city, stay or country"
+          aria-label="Search a city, stay or country"
+        />
+        <button class="btn btn-search" type="submit" aria-label="Search stays">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        </button>
+      </div>
+    </form>
     <div class="collapse navbar-collapse" id="navbarNav">
       <div class="navbar-nav">
         <a class="nav-link" href="/#about">About</a>
@@ -36,17 +72,31 @@
         </button>
       </form>
       <div class="navbar-nav navbar-actions align-items-xl-center">
-        <a class="nav-link host-link" href="/listings/new">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i> Host a stay
-        </a>
         <% if (!currUser) { %>
           <a class="nav-link" href="/signup"><b>Sign Up</b></a>
           <a class="nav-link" href="/login"><b>Log in</b></a>
         <% } else { %>
-          <span class="nav-link user-name">@<%= currUser.username %></span>
-          <form action="/logout" method="POST">
-            <button class="nav-link btn btn-link text-decoration-none"><b>Log out</b></button>
-          </form>
+          <div class="dropdown">
+            <button
+              class="nav-link btn btn-link dropdown-toggle text-decoration-none"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
+              <span class="user-name">@<%= currUser.username %></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/bookings"><i class="fa-solid fa-suitcase-rolling" aria-hidden="true"></i> My trips</a></li>
+              <li><a class="dropdown-item" href="/bookings/host"><i class="fa-solid fa-house" aria-hidden="true"></i> Hosting requests</a></li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <form action="/logout" method="POST">
+                  <button class="dropdown-item" type="submit"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out</button>
+                </form>
+              </li>
+            </ul>
+          </div>
         <% } %>
       </div>
     </div>

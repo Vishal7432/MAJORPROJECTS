@@ -21,7 +21,13 @@
 
   <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
     <% if (searchQuery) { %>
-      <p class="search-summary mb-0">Showing results for <strong>“<%= searchQuery %>”</strong></p>
+      <p class="search-summary mb-0">
+        <% if (searchMatchType === "fuzzy") { %>
+          Showing close matches for <strong>“<%= searchQuery %>”</strong>
+        <% } else { %>
+          Showing results for <strong>“<%= searchQuery %>”</strong>
+        <% } %>
+      </p>
     <% } else { %>
       <p class="search-summary mb-0">Handpicked places for your next escape</p>
     <% } %>

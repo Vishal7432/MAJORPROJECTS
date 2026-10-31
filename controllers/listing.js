@@ -1,6 +1,7 @@
 const Listing = require("../models/listing");
 const ExpressError = require("../utils/ExpressError.js");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const { rankListings } = require("../utils/listingSearch.js");
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -37,8 +38,25 @@ module.exports.index = async (req, res) => {
       }
     : {};
 
-  const allListings = await Listing.find(filter);
-  res.render("listings/index.ejs", { allListings, searchQuery });
+  let allListings = await Listing.find(filter);
+  let searchMatchType = "exact";
+
+  if (searchQuery && allListings.length === 0) {
+    const candidates = await Listing.find({})
+      .select("title location country description image price")
+      .lean();
+    allListings = rankListings(searchQuery, candidates).map((listing) => ({
+      ...listing,
+      id: String(listing._id),
+    }));
+    searchMatchType = allListings.length > 0 ? "fuzzy" : "none";
+  }
+
+  res.render("listings/index.ejs", {
+    allListings,
+    searchQuery,
+    searchMatchType,
+  });
 };
 
 module.exports.renderNewForm = (req, res) => {

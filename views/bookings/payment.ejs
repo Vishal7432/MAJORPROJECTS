@@ -1,0 +1,88 @@
+<% layout("/layouts/boilerplate") -%>
+
+<main class="booking-payment-page">
+  <section class="payment-card">
+    <span class="payment-icon"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+    <p class="eyebrow">Secure checkout</p>
+    <h1>Complete your booking</h1>
+    <p class="payment-stay-name"><%= booking.listing.title %></p>
+    <p class="payment-dates">
+      <%= booking.checkIn.toLocaleDateString("en-IN", { dateStyle: "medium", timeZone: "UTC" }) %>
+      – <%= booking.checkOut.toLocaleDateString("en-IN", { dateStyle: "medium", timeZone: "UTC" }) %>
+      · <%= booking.nights %> nights
+    </p>
+    <div class="payment-total">
+      <span>Total · INR</span>
+      <strong>&#8377;<%= booking.totalPrice.toLocaleString("en-IN") %></strong>
+    </div>
+    <button id="razorpay-checkout" class="btn booking-cta-button w-100" type="button">
+      <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Pay securely with Razorpay
+    </button>
+    <p id="payment-error" class="payment-error" role="alert" hidden></p>
+    <p class="payment-disclaimer">Your stay is confirmed after Razorpay verifies your payment.</p>
+    <a class="payment-back-link" href="/bookings">Back to my trips</a>
+  </section>
+</main>
+
+<form id="payment-verification" action="/bookings/<%= booking._id %>/payment/verify" method="POST" hidden>
+  <input name="razorpay_payment_id" />
+  <input name="razorpay_order_id" />
+  <input name="razorpay_signature" />
+</form>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  const paymentConfig = <%- JSON.stringify({
+    keyId,
+    amount: order.amount,
+    currency: order.currency,
+    orderId: order.id,
+    description: booking.listing.title,
+    username: user.username || "",
+    email: user.email || ""
+  }).replace(/</g, "\\u003c") %>;
+  const checkoutButton = document.getElementById("razorpay-checkout");
+  const paymentError = document.getElementById("payment-error");
+  checkoutButton.addEventListener("click", () => {
+    if (typeof window.Razorpay !== "function") {
+      paymentError.textContent = "Secure checkout did not load. Check your connection and try again.";
+      paymentError.hidden = false;
+      return;
+    }
+
+    paymentError.hidden = true;
+    checkoutButton.disabled = true;
+    const checkout = new Razorpay({
+      key: paymentConfig.keyId,
+      amount: paymentConfig.amount,
+      currency: paymentConfig.currency,
+      name: "Yatra-Nest",
+      description: paymentConfig.description,
+      order_id: paymentConfig.orderId,
+      prefill: {
+        name: paymentConfig.username,
+        email: paymentConfig.email,
+      },
+      theme: { color: "#c45c45" },
+      handler: (response) => {
+        const form = document.getElementById("payment-verification");
+        form.elements.razorpay_payment_id.value = response.razorpay_payment_id;
+        form.elements.razorpay_order_id.value = response.razorpay_order_id;
+        form.elements.razorpay_signature.value = response.razorpay_signature;
+        form.submit();
+      },
+      modal: {
+        ondismiss: () => {
+          checkoutButton.disabled = false;
+        },
+      },
+    });
+
+    checkout.on("payment.failed", () => {
+      checkoutButton.disabled = false;
+      paymentError.textContent = "Payment was not completed. You can try again.";
+      paymentError.hidden = false;
+    });
+    checkout.open();
+  });
+</script>

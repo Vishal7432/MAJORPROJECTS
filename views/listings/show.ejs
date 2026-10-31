@@ -27,6 +27,19 @@
         <p><%= listing.location %>, <%= listing.country %></p>
       </div>
     </article>
+    <% if (!listing.owner || !currUser || !currUser._id.equals(listing.owner._id)) { %>
+      <aside class="booking-cta mt-3">
+        <div>
+          <p class="booking-cta-price mb-1">
+            <strong>&#8377;<%= listing.price.toLocaleString("en-IN") %></strong> / night
+          </p>
+          <p class="booking-cta-note mb-0">Choose your dates to request this stay.</p>
+        </div>
+        <a class="btn booking-cta-button" href="/listings/<%= listing._id %>/book">
+          Book now <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </aside>
+    <% } %>
   </div>
 
   <% if (currUser && listing.owner && currUser._id.equals(listing.owner._id)) { %>

@@ -1,0 +1,54 @@
+<% layout("/layouts/boilerplate") -%>
+
+<main class="booking-page">
+  <header class="booking-dashboard-heading">
+    <p class="eyebrow">Your travel plans</p>
+    <h1>My trips</h1>
+    <p>Keep track of booking requests, upcoming stays and payments.</p>
+  </header>
+
+  <% if (bookings.length === 0) { %>
+    <section class="booking-empty-state">
+      <span class="empty-state-icon"><i class="fa-solid fa-suitcase-rolling" aria-hidden="true"></i></span>
+      <h2>No trips yet</h2>
+      <p>Find a stay you love and send a request to the host.</p>
+      <a class="btn booking-cta-button" href="/listings">Explore stays</a>
+    </section>
+  <% } else { %>
+    <div class="booking-list">
+      <% for (const booking of bookings) { %>
+        <article class="booking-list-card">
+          <img
+            src="<%= booking.listing?.image?.url || 'https://placehold.co/800x600?text=Stay' %>"
+            alt="<%= booking.listing?.title || 'Stay no longer available' %>"
+          />
+          <div class="booking-list-main">
+            <span class="booking-status status-<%= booking.status %>">
+              <%= booking.status === "payment_pending" ? "Payment due" : booking.status.replace("_", " ") %>
+            </span>
+            <h2><%= booking.listing?.title || "Stay no longer available" %></h2>
+            <p class="booking-list-location"><%= booking.listing?.location || "" %><%= booking.listing?.country ? ", " + booking.listing.country : "" %></p>
+            <p class="booking-list-dates">
+              <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+              <%= booking.checkIn.toLocaleDateString("en-IN", { dateStyle: "medium", timeZone: "UTC" }) %>
+              – <%= booking.checkOut.toLocaleDateString("en-IN", { dateStyle: "medium", timeZone: "UTC" }) %>
+              <span>· <%= booking.nights %> nights</span>
+            </p>
+          </div>
+          <div class="booking-list-action">
+            <p><strong>&#8377;<%= booking.totalPrice.toLocaleString("en-IN") %></strong><small> total</small></p>
+            <% if (booking.status === "payment_pending" && booking.paymentExpiresAt > new Date()) { %>
+              <a class="btn booking-cta-button" href="/bookings/<%= booking._id %>/pay">Pay with Razorpay</a>
+            <% } else if (booking.status === "payment_pending") { %>
+              <span class="booking-expired-note">Payment window expired.</span>
+            <% } else if (booking.status === "expired" && booking.checkIn >= new Date(new Date().toISOString().slice(0, 10))) { %>
+              <form action="/bookings/<%= booking._id %>/reopen" method="POST">
+                <button class="btn btn-outline-secondary" type="submit">Request approval again</button>
+              </form>
+            <% } %>
+          </div>
+        </article>
+      <% } %>
+    </div>
+  <% } %>
+</main>

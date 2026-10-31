@@ -1,0 +1,51 @@
+<% layout("/layouts/boilerplate") -%>
+
+<main class="booking-page">
+  <header class="booking-dashboard-heading">
+    <p class="eyebrow">Hosting dashboard</p>
+    <h1>Booking requests</h1>
+    <p>Review guest dates and approve requests before payment is collected.</p>
+  </header>
+
+  <% if (bookings.length === 0) { %>
+    <section class="booking-empty-state">
+      <span class="empty-state-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
+      <h2>No booking requests yet</h2>
+      <p>Guest requests for your stays will show up here.</p>
+    </section>
+  <% } else { %>
+    <div class="booking-list">
+      <% for (const booking of bookings) { %>
+        <article class="host-request-card">
+          <div class="host-request-heading">
+            <div>
+              <span class="booking-status status-<%= booking.status %>">
+                <%= booking.status === "payment_pending" ? "Awaiting guest payment" : booking.status.replace("_", " ") %>
+              </span>
+              <h2><%= booking.listing?.title || "Stay no longer available" %></h2>
+              <p><%= booking.guest?.username || "Guest" %> · <%= booking.guest?.email || "" %></p>
+            </div>
+            <p class="host-request-total"><strong>&#8377;<%= booking.totalPrice.toLocaleString("en-IN") %></strong><small> for <%= booking.nights %> nights</small></p>
+          </div>
+          <p class="booking-list-dates">
+            <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+            <%= booking.checkIn.toLocaleDateString("en-IN", { dateStyle: "medium", timeZone: "UTC" }) %>
+            – <%= booking.checkOut.toLocaleDateString("en-IN", { dateStyle: "medium", timeZone: "UTC" }) %>
+          </p>
+          <% if (booking.status === "pending") { %>
+            <div class="host-request-actions">
+              <form action="/bookings/<%= booking._id %>/approve" method="POST">
+                <button class="btn booking-cta-button" type="submit">
+                  <i class="fa-solid fa-check" aria-hidden="true"></i> Approve request
+                </button>
+              </form>
+              <form action="/bookings/<%= booking._id %>/reject" method="POST">
+                <button class="btn btn-outline-secondary" type="submit">Decline</button>
+              </form>
+            </div>
+          <% } %>
+        </article>
+      <% } %>
+    </div>
+  <% } %>
+</main>

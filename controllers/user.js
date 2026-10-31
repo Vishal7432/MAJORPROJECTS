@@ -14,7 +14,9 @@ module.exports.userSignup = async (req, res, next) => {
         return next(err);
       }
       req.flash("success", "Welcome to Yatra-Nest");
-      res.redirect("/listings");
+      const redirectUrl = req.session.redirectUrl || "/listings";
+      delete req.session.redirectUrl;
+      res.redirect(redirectUrl);
     });
   } catch (e) {
     req.flash("error", e.message);
@@ -28,7 +30,8 @@ module.exports.loginForm = (req, res) => {
 
 module.exports.login = async (req, res) => {
   req.flash("success", "Welcome back to Yatra-Nest!");
-  let redirectUrl = res.locals.redirectUrl || "/listings";
+  const redirectUrl = req.session.redirectUrl || res.locals.redirectUrl || "/listings";
+  delete req.session.redirectUrl;
   res.redirect(redirectUrl);
 };
 
