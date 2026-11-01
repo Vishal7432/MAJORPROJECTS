@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: yatra-nest
+    runtime: node
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ATLASDB_URL
+        sync: false
+      - key: SECRET
+        generateValue: true
+      - key: CLOUD_NAME
+        sync: false
+      - key: CLOUD_API_KEY
+        sync: false
+      - key: CLOUD_API_SECRET
+        sync: false
+      - key: MAP_TOKEN
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
